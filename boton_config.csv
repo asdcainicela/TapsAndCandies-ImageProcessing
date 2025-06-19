@@ -1,0 +1,10 @@
+Text       , FontColor, Bold , Color  , HoverColor, BGColor, PosX, PosY , AltText   , AltColor
+Start Video, white    , true , #0097a7, #00ffff   , #c7e9e9,  421, 572.3, Stop Video, #FF8C00
+Capture 1  , black    , false, #81d4fa, #ffffff   , #c8e8e8,  421, 504.3,           , 
+Capture 2  , black    , false, #81d4fa, #ffffff   , #caeaea,  421, 431.8,           , 
+Load 1     , black    , false, #4dd0e1, #b2ebf2   , #c4e9ea,   90, 321.9,           , 
+Load 2     , black    , false, #4dd0e1, #b2ebf2   , #d0e8e4,  421, 321.9,           , 
+Save 1     , black    , false, #00e4ff, #80ffff   , #cee8e5,   46,  10.3,           , 
+Clear all  , black    , false, #00e4ff, #80ffff   , #d2e8e3,  243,  10.3,           , 
+Save 2     , black    , false, #00e4ff, #80ffff   , #d6e7e1,  441,  10.3,           , 
+Process    , white    , true , #ff0a0a, #ff6666   , #dbe7db,  929, 596.3,           , 
