@@ -4,7 +4,8 @@ classdef RoundButton < matlab.ui.componentcontainer.ComponentContainer
         FontColor (1,:) char = 'black'              % Color del texto
         BackgroundHexColor (1,:) char = '#ffffff'   % Fondo del HTML
         Text (1,:) char = 'Button'                  % Texto del botón
-        Bold (1,1) logical = false                  % Texto en negrita (por defecto: false)
+        Bold (1,1) logical = false                  % Texto en negrita
+        HoverColor (1,:) char = '#cccccc'           % Color al hacer hover
     end
 
     properties (Access = private, Transient, NonCopyable)
@@ -16,26 +17,29 @@ classdef RoundButton < matlab.ui.componentcontainer.ComponentContainer
     end 
 
     methods
-        % Validadores para colores hexadecimales
         function set.Color(obj, val)
-            assert(~isempty(regexp(val, '^#[0-9a-fA-F]{6}$', 'once')), ...
-                "Color must be a hex code like '#45ff89'.");
+            validateColor(val, 'Color');
             obj.Color = val;
         end
 
         function set.BackgroundHexColor(obj, val)
-            assert(~isempty(regexp(val, '^#[0-9a-fA-F]{6}$', 'once')), ...
-                "BackgroundHexColor must be a hex code like '#ffffff'.");
+            validateColor(val, 'BackgroundHexColor');
             obj.BackgroundHexColor = val;
+        end
+
+        function set.HoverColor(obj, val)
+            validateColor(val, 'HoverColor');
+            obj.HoverColor = val;
         end
     end
 
-    methods (Access=protected)
+    methods (Access = protected)
         function setup(obj)
             obj.Position = [100 100 80 40];
+            htmlPath = fullfile(fileparts(mfilename("fullpath")), "RoundButton.html");
             obj.HTMLComponent = uihtml(obj, ...
                 "Position", [1 1 obj.Position(3:4)], ...
-                "HTMLSource", fullfile(pwd, "RoundButton.html"));
+                "HTMLSource", htmlPath);
             obj.HTMLComponent.HTMLEventReceivedFcn = @(src, event) notify(obj, "ButtonPushed");
         end
 
@@ -45,9 +49,15 @@ classdef RoundButton < matlab.ui.componentcontainer.ComponentContainer
                 "FontColor", obj.FontColor, ...
                 "Text", obj.Text, ...
                 "BackgroundColor", obj.BackgroundHexColor, ...
-                "Bold", obj.Bold ...
+                "Bold", obj.Bold, ...
+                "HoverColor", obj.HoverColor ...
             );
             obj.HTMLComponent.Position = [1 1 obj.Position(3:4)];
         end
     end
+end
+
+function validateColor(val, name)
+    assert(~isempty(regexp(val, '^#[0-9a-fA-F]{6}$', 'once')), ...
+        name + " must be a hex code like '#ffcc00'.");
 end
