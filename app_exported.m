@@ -189,10 +189,11 @@ classdef app_exported < matlab.apps.AppBase
 
         % Code that executes after component creation
         function startupFcn(app)
-            addpath(genpath(fullfile(pwd, 'RoundButton'))); % path de los botones 
+            addpath(genpath(fullfile(pwd, 'round_button'))); % path de los botones 
 
             %app.UIFigure.Color = "#1a1a1a";
-            config = readtable(fullfile(pwd, 'boton_config.csv'), 'TextType', 'string');
+            config = readtable(fullfile(pwd, 'config/','boton_config.csv'), 'TextType', 'string');
+            
             % Convertir la columna Bold a logical
             if iscell(config.Bold)
                 config.Bold = strcmpi(config.Bold, 'true');
@@ -202,7 +203,7 @@ classdef app_exported < matlab.apps.AppBase
 
             for i = 1:height(config)
                 row = config(i, :);
-                btn = RoundButton(app.UIFigure, ...
+                btn = round_button(app.UIFigure, ...
                     "Position", [row.PosX, row.PosY + 11, row.Width, row.Height], ...
                     "Color", row.Color, ...
                     "FontColor", row.FontColor, ...
@@ -296,7 +297,7 @@ classdef app_exported < matlab.apps.AppBase
             % Create Image
             app.Image = uiimage(app.UIFigure);
             app.Image.Position = [0 0 1366 768];
-            app.Image.ImageSource = fullfile(pathToMLAPP, 'img-src', 'resultado_blanco_puro_grande.png');
+            app.Image.ImageSource = fullfile(pathToMLAPP, 'img-src', 'background-image.png');
 
             % Create ImageVideo
             app.ImageVideo = uiimage(app.UIFigure);

@@ -1,4 +1,4 @@
-classdef RoundButton < matlab.ui.componentcontainer.ComponentContainer
+classdef round_button < matlab.ui.componentcontainer.ComponentContainer
     properties
         Color (1,:) char = '#ffffff'                % Color del botón
         FontColor (1,:) char = 'black'              % Color del texto
@@ -36,7 +36,7 @@ classdef RoundButton < matlab.ui.componentcontainer.ComponentContainer
     methods (Access = protected)
         function setup(obj)
             obj.Position = [100 100 80 40];
-            htmlPath = fullfile(fileparts(mfilename("fullpath")), "RoundButton.html");
+            htmlPath = fullfile(fileparts(mfilename("fullpath")), "round_button.html");
             obj.HTMLComponent = uihtml(obj, ...
                 "Position", [1 1 obj.Position(3:4)], ...
                 "HTMLSource", htmlPath);
