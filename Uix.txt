@@ -1,0 +1,16 @@
+Tamaño total del recuadro: 1366 x 757 px
+Tamaño de todos los botones: 185.3 x 59.7 px (ancho x alto)
+Fuente: TT Norms (o Russo One / Helvetica si no disponible)
+Tamaño de fuente: 16 px
+
+Texto         | Color texto | Negrita | Color fondo | Posición (x, y)
+--------------|-------------|---------|-------------|----------------
+Start Video   | White       | Sí      | #0097a7     | (421, 125)
+Capture 1     | Black       | No      | #81d4fa     | (421, 193)
+Capture 2     | Black       | No      | #81d4fa     | (421, 265.5)
+Load 1        | Black       | No      | #4dd0e1     | (90, 375.4)
+Load 2        | Black       | No      | #4dd0e1     | (421, 375.4)
+Save 1        | Black       | No      | #00e4ff     | (46, 687)
+Clear all     | Black       | No      | #00e4ff     | (243, 687)
+Save 2        | Black       | No      | #00e4ff     | (441, 687)
+Process       | White       | Sí      | #ff0a0a     | (929, 101)
