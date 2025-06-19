@@ -27,11 +27,11 @@
       const buttonElement = document.getElementById("roundButton");
 
       htmlComponent.addEventListener("DataChanged", function(event) {
-        // Set styles dynamically
         document.body.style.backgroundColor = htmlComponent.Data.BackgroundColor;
         buttonElement.style.backgroundColor = htmlComponent.Data.Color;
         buttonElement.style.color = htmlComponent.Data.FontColor;
         buttonElement.innerHTML = htmlComponent.Data.Text;
+        buttonElement.style.fontWeight = htmlComponent.Data.Bold ? "bold" : "normal";  // Soporte negrita
       });
 
       buttonElement.addEventListener("click", function(event) {
