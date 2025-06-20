@@ -2,14 +2,16 @@ classdef app_exported < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
-        UIFigure      matlab.ui.Figure
-        ImagePhoto2   matlab.ui.control.Image
-        ImagePhoto1   matlab.ui.control.Image
-        ImageVideo    matlab.ui.control.Image
-        Image         matlab.ui.control.Image
-        UIAxesPhoto2  matlab.ui.control.UIAxes
-        UIAxesPhoto1  matlab.ui.control.UIAxes
-        UIAxesVideo   matlab.ui.control.UIAxes
+        UIFigure       matlab.ui.Figure
+        UITableCount   matlab.ui.control.Table
+        UITableObject  matlab.ui.control.Table
+        ImagePhoto2    matlab.ui.control.Image
+        ImagePhoto1    matlab.ui.control.Image
+        ImageVideo     matlab.ui.control.Image
+        Image          matlab.ui.control.Image
+        UIAxesPhoto2   matlab.ui.control.UIAxes
+        UIAxesPhoto1   matlab.ui.control.UIAxes
+        UIAxesVideo    matlab.ui.control.UIAxes
     end
 
     
@@ -143,6 +145,78 @@ classdef app_exported < matlab.apps.AppBase
                 app.UIAxesPhoto2.YTick = [];
             end
         end
+
+        function ProcessImages(app)
+            try
+                % Validar que hay imágenes capturadas o cargadas
+                if isempty(app.imagePhoto1Data) || isempty(app.imagePhoto2Data)
+                    uialert(app.UIFigure, ...
+                        'Primero captura o carga ambas imágenes.', ...
+                        'Error');
+                    return;
+                end
+        
+                % Ejecutar la detección con las imágenes en memoria
+                Tfinal = detectarEnImagenes(app.imagePhoto1Data, app.imagePhoto2Data, false);
+                Taligned = emparejarDetecciones(Tfinal);
+                counts = calcularConteos(Taligned);
+                %guardarResultados(Tfinal, Taligned, counts, fullfile(pwd, 'result'));
+        
+                % Mostrar resultados
+                % disp('=== Tfinal ===');
+                % disp(Tfinal);
+                % disp('=== Taligned ===');
+                % disp(Taligned);
+                % disp('=== Counts ===');
+                % disp(counts);
+                
+                bottle = counts.Bottle_Cap;
+                lentil = counts.Lentil;
+                 
+
+                data = {
+                    'Bottle_Cap', getFieldOrZero(bottle, 'Purple'), getFieldOrZero(bottle, 'Yellow'), ...
+                                  getFieldOrZero(bottle, 'Green'),  getFieldOrZero(bottle, 'Blue'),    bottle.Total;
+                    'Lentil',     getFieldOrZero(lentil, 'Purple'), getFieldOrZero(lentil, 'Yellow'), ...
+                                  getFieldOrZero(lentil, 'Green'),  getFieldOrZero(lentil, 'Blue'),    lentil.Total;
+                }; 
+
+                
+                % Asignar a la UITable
+                % color en [R G B] entre 0 y 1
+                bgColor = [238, 242, 247] / 255;
+                
+                app.UITableCount.BackgroundColor =  bgColor; 
+
+                app.UITableCount.Visible = 'on';    
+                app.UITableCount.Data = data; 
+
+                try
+                     % Selecciona solo las columnas que quieres mostrar
+                    Tmostrar = Taligned(:, {'Tipo','Color','X0','Y0','X1','Y1'}); 
+    
+                    % Formatea a 2 decimales:
+                    Tmostrar = formatearDecimales(Tmostrar, 2);
+                    app.UITableObject.BackgroundColor =  bgColor;
+                    app.UITableObject.Visible = 'on';      % hacerla visible
+                    app.UITableObject.Data = Tmostrar;
+                catch ME
+                    uialert(app.UIFigure, ME.message, 'Error al procesar imágenes');
+                end
+ 
+                % Asígnalo a la Table del UI
+                
+
+        
+                % (Opcional) Mostrar los conteos en una UITable si tienes una
+                % Por ejemplo:
+                % app.UITableObject.Data = struct2table(counts);  % depende de cómo sea "counts"
+        
+            catch ME
+                uialert(app.UIFigure, ME.message, 'Error al procesar imágenes');
+            end
+        end
+
         
         % Limpiar todas las imágenes
         function ClearAll(app)
@@ -189,7 +263,9 @@ classdef app_exported < matlab.apps.AppBase
 
         % Code that executes after component creation
         function startupFcn(app)
-            addpath(genpath(fullfile(pwd, 'round_button'))); % path de los botones 
+            basePath = fullfile(pwd, 'functions');  % carpeta raíz
+            addpath(genpath(basePath));             % agrega todas las subcarpetas automáticamente
+            %addpath(genpath(fullfile(pwd, 'round_button'))); % path de los botones 
 
             %app.UIFigure.Color = "#1a1a1a";
             config = readtable(fullfile(pwd, 'config/','boton_config.csv'), 'TextType', 'string');
@@ -239,7 +315,8 @@ classdef app_exported < matlab.apps.AppBase
                         btn.ButtonPushedFcn = @(~, ~) app.ClearAll();
                     case "Process"
                         app.ProcessBtn = btn;
-                        btn.ButtonPushedFcn = @(~, ~) app.onButtonClicked("Process");
+                        %btn.ButtonPushedFcn = @(~, ~) app.onButtonClicked("Process");
+                        btn.ButtonPushedFcn = @(~, ~) app.ProcessImages();
                 end
             end
 
@@ -297,22 +374,39 @@ classdef app_exported < matlab.apps.AppBase
             % Create Image
             app.Image = uiimage(app.UIFigure);
             app.Image.Position = [0 0 1366 768];
-            app.Image.ImageSource = fullfile(pathToMLAPP, 'img-src', 'background-image.png');
+            app.Image.ImageSource = fullfile(pathToMLAPP, 'media', 'img-src', 'background-image.png');
 
             % Create ImageVideo
             app.ImageVideo = uiimage(app.UIFigure);
             app.ImageVideo.Position = [44 411 365 262];
-            app.ImageVideo.ImageSource = fullfile(pathToMLAPP, 'img-src', 'img-video.png');
+            app.ImageVideo.ImageSource = fullfile(pathToMLAPP, 'media', 'img-src', 'img-video.png');
 
             % Create ImagePhoto1
             app.ImagePhoto1 = uiimage(app.UIFigure);
             app.ImagePhoto1.Position = [44 101 293 224];
-            app.ImagePhoto1.ImageSource = fullfile(pathToMLAPP, 'img-src', 'img-photo.png');
+            app.ImagePhoto1.ImageSource = fullfile(pathToMLAPP, 'media', 'img-src', 'img-photo.png');
 
             % Create ImagePhoto2
             app.ImagePhoto2 = uiimage(app.UIFigure);
             app.ImagePhoto2.Position = [348 101 293 224];
-            app.ImagePhoto2.ImageSource = fullfile(pathToMLAPP, 'img-src', 'img-photo.png');
+            app.ImagePhoto2.ImageSource = fullfile(pathToMLAPP, 'media', 'img-src', 'img-photo.png');
+
+            % Create UITableObject
+            app.UITableObject = uitable(app.UIFigure);
+            app.UITableObject.ColumnName = {'Type'; 'Color'; 'x0'; 'y0'; 'x1'; 'y1'};
+            app.UITableObject.RowName = {};
+            app.UITableObject.Visible = 'off';
+            app.UITableObject.FontSize = 14;
+            app.UITableObject.Position = [739 54 561 266];
+
+            % Create UITableCount
+            app.UITableCount = uitable(app.UIFigure);
+            app.UITableCount.BackgroundColor = [1 1 1;1 1 1];
+            app.UITableCount.ColumnName = {'Type'; 'Purple'; 'Yellow'; 'Green'; 'Blue'; 'Total'};
+            app.UITableCount.RowName = {};
+            app.UITableCount.Visible = 'off';
+            app.UITableCount.FontSize = 14;
+            app.UITableCount.Position = [739 438 561 83];
 
             % Show the figure after all components are created
             app.UIFigure.Visible = 'on';
