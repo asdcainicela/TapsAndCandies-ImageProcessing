@@ -4,7 +4,8 @@ basePath = fullfile(pwd, 'functions');  % carpeta raíz
 addpath(genpath(basePath));             % agrega todas las subcarpetas automáticamente
 
 % Procesamiento
-Tfinal    = detectarEnImagenes('media/img-test/imagen1.png', 'media/img-test/imagen2.png', false);
+Tfinal    = detectarEnImagenes('media/img-test/test2/imagen1.png', 'media/img-test/test2/imagen2.png', false);
+Tfinal = formatearDecimales(Tfinal,2);
 Taligned  = emparejarDetecciones(Tfinal);
 counts    = calcularConteos(Taligned);
 
@@ -12,17 +13,5 @@ counts    = calcularConteos(Taligned);
 guardarResultados(Tfinal, Taligned, counts, fullfile(pwd, 'result'));
 
 % Mostrar resultados
-disp(counts);
+disp(Tfinal);
 disp(Taligned);
-
-
-disp('=== Conteos por Tipo y Color (con totales) ===')
-disp(counts)
-
-[files, products] = matlab.codetools.requiredFilesAndProducts('app_prueba.m');
-
-disp('=== Archivos dependientes ===')
-disp(files')
-
-disp('=== Toolboxes utilizados ===')
-disp({products.Name}')
