@@ -37,7 +37,7 @@ TapsAndCandies-ImageProcessing/
 ├── App.mlapp                    # Main App Designer file with the full GUI layout and callbacks.
 ├── app_exported.m               # Auto-generated exported version of the App for standalone execution.
 ├── config/
-│   └── boton_config.csv          # CSV file defining properties of custom RoundButton UI components (position, color, label, etc.).
+│   └── boton_config.csv          # CSV file defining properties of custom RoundButton UI components.
 ├── doc/
 │   └── info/                    # Reference documents and additional information about the project.
 ├── functions/
@@ -47,18 +47,18 @@ TapsAndCandies-ImageProcessing/
 │   │   ├── ...                    # Other utility scripts for file handling.
 │   ├── detection/                # Functions to process images and detect objects.
 │   │   ├── calcularEscalaDesdeHoja.m # Estimates scale (cm/pixel) by detecting the A4 sheet in the image.
-│   │   ├── classify_shape.m        # Determines if the detected object is a `Bottle Cap`, `Lentil`, or `Unknown` by its shape and size.
+│   │   ├── classify_shape.m        # Determines is a `Bottle Cap`, `Lentil`, or `Unknown` by its shape and size.
 │   │   ├── detectarEnImagenes.m    # Main pipeline for image detection — preprocess, segment, classify.
 │   │   ├── detectarObjetos.m       # Runs color segmentation and labeling of detected regions.
 │   │   ├── detectarObjetosEnMascaras.m # Applies masks per color and returns detected properties.
-│   │   ├── generarMascarasColor.m  # Converts image into different color masks (Yellow, Green, Blue, Purple) without Toolbox.
+│   │   ├── generarMascarasColor.m  # Converts image into different color masks (Yellow, Green, Blue, Purple).
 │   │   ├── get_object_properties.m # Helper to extract properties like area, centroid, bounding box.
 │   │   ├── my_bwlabel.m            # Custom labeling of connected components (no Toolbox dependency).
 │   │   └── ...                    # Supporting image processing scripts.
 │   ├── matching/                 # Functions for object matching across `start` and `end` images.
 │   │   ├── calcularConteos.m       # Aggregates per-type and per-color statistics into a struct.
 │   │   ├── convertirDeteccionATabla.m # Converts raw detection struct into a MATLAB table.
-│   │   ├── emparejarDetecciones.m   # Matches corresponding `Bottle Cap` and `Lentil` between `start` and `end`.
+│   │   ├── emparejarDetecciones.m   # Matches `Bottle Cap` and `Lentil` between `start` and `end`.
 │   │   └── ...                    
 │   ├── preprocessing/             # Low-level image-processing utilities.
 │   │   ├── manual_rgb2hsv.m        # Converts an image from RGB to HSV color space manually.
@@ -75,7 +75,7 @@ TapsAndCandies-ImageProcessing/
 │   ├── utils/                    # General utility scripts for the app.
 │   │   ├── formatearDecimales.m   # Utility for formatting numeric outputs with specified decimal places.
 │   │   ├── getFieldOrZero.m       # Fetch a field value from a struct or returns zero if it doesn’t exist.
-│   │   └── usbwebcams.mlpkginstall # MATLAB Support Package for USB webcams, allowing the app to capture video directly.
+│   │   └── usbwebcams.mlpkginstall # MATLAB Support Package for USB webcams.
 │   └── visualize/                # Functions to visualize results.
 │       └── visualizarDetecciones.m # Draws detected objects and properties over the image.
 ├── media/
@@ -85,11 +85,8 @@ TapsAndCandies-ImageProcessing/
 │   ├── Counts.mat                 # MATLAB struct file containing counts per color and type.
 │   ├── Matched_Detections.csv     # CSV file with the matched object properties.
 │   ├── Raw_Detections.csv         # CSV file with raw detection output.
-│   ├── ResultadosDeteccionCrudo.csv    # Spanish version of raw detection results.
-│   ├── ResultadosEmparejados.csv       # Spanish version of matched results.
 ├── ss/                           # Screenshots of the app for documentation.
-├── listTree.mlx                  # Interactive helper file for listing the project's directory tree.
-├── logic.m                       # Script for executing the core processing outside the GUI.
+├── logic.m                       # Standalone demo script to run the core logic without GUI.
 ├── README.md                     # This file.
 ```
 
