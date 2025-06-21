@@ -4,7 +4,7 @@ from PIL import Image
 import os
 
 # Ruta de la imagen original
-image_path = "d:/git/TapsAndCandies-ImageProcessing/media/img-src/4.png"
+image_path = "d:/git/TapsAndCandies-ImageProcessing/media/img-src/es.png"
 
 # Cargar la imagen con OpenCV (BGR) para procesar los píxeles
 img_cv = cv2.imread(image_path)
