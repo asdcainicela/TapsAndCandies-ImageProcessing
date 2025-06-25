@@ -28,6 +28,8 @@ The graphical user interface is in Spanish.
 4. Run `App.mlapp` in App Designer.
 
 ## 📂 Project Structure
+
+```
 TapsAndCandies-ImageProcessing/
 ├── App.mlapp
 ├── app_exported.m
@@ -64,6 +66,7 @@ TapsAndCandies-ImageProcessing/
 ├── ss/
 ├── utils/
 │   └── usbwebcams.mlpkginstall
+```
 
 ## 📝 Usage
 1. Run `App.mlapp`.
