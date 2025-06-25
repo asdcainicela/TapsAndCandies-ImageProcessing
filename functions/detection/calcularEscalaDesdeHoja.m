@@ -1,11 +1,11 @@
 function [cmX, cmY, bbox_hoja, area_px_hoja] = calcularEscalaDesdeHoja(img)
     gray = rgb2gray(img);
-    level = my_graythresh(gray);
-    BW_hoja = my_imbinarize(gray, level);
-    BW_hoja = my_imcomplement(BW_hoja);
-    BW_hoja = remove_small_objects(BW_hoja, 5000);
-    BW_hoja = remove_nonborder_objects(BW_hoja);
-    stats_hoja = get_object_properties(BW_hoja);
+    level = graythresh(gray);
+    BW_hoja = imbinarize(gray, level);
+    BW_hoja = imcomplement(BW_hoja); 
+    BW_hoja = bwareaopen(BW_hoja, 5000); % Elimina objetos pequeños: equivalente a tu remove_small_objects(BW,5000)
+    BW_hoja = remove_nonborder_objects(BW_hoja); % Elimina objetos que tocan el borde: equivalente a remove_nonborder_objects
+    stats_hoja = regionprops(BW_hoja, 'BoundingBox', 'Area');%stats_hoja = get_object_properties(BW_hoja);
 
     if isempty(stats_hoja)
         warning('No hoja detectada. Usando A4 completa.');

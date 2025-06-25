@@ -1,6 +1,6 @@
 function BW = remove_nonborder_objects(BW)
     % Encuentra etiquetas
-    [L, num] = my_bwlabel(BW);
+    [L, num] = bwlabel(BW);
     BW = false(size(BW));
 
     for label = 1:num

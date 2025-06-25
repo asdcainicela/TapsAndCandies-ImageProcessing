@@ -2,8 +2,10 @@ function data = detectarObjetosEnMascaras(masks, colorNames, cmX, cmY)
     Tipo = {}; Color = {}; Area_cm2 = []; X_cm = []; Y_cm = [];
 
     for k = 1:length(masks)
-        BW = remove_small_objects(masks{k}, 100);
-        stats = get_object_properties(BW);
+        % Limpieza de objetos pequeños
+        BW = bwareaopen(masks{k}, 100);  
+        % Extraer propiedades con regionprops (Toolbox)
+        stats = regionprops(BW, 'Area', 'Centroid'); 
         for i = 1:length(stats)
             a = stats(i).Area * cmX * cmY;
             tipo = classify_shape(a); % SRP

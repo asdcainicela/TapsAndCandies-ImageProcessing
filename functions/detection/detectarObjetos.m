@@ -1,8 +1,5 @@
-function data = detectarObjetos(imgInput, scaleFactor, showFigure)
+function [img, data, cmX, cmY] = detectarObjetos(imgInput, scaleFactor)%, showFigure)
     % DETECTAROBJETOS: Orquesta el proceso de detección.
-    if nargin < 3
-        showFigure = false;
-    end
     
     % Cargar y escalar imagen desde path o matriz
     img = cargarEscalarImagen(imgInput, scaleFactor);             % SRP
@@ -18,10 +15,5 @@ function data = detectarObjetos(imgInput, scaleFactor, showFigure)
     data.cmX = cmX; 
     data.cmY = cmY;
     data.BBox_Hoja = bbox_hoja; 
-    data.area_px_hoja = area_px_hoja;
-
-    % Visualización opcional
-    if showFigure
-        visualizarDetecciones(img, data, cmX, cmY);             % SRP
-    end
+    data.area_px_hoja = area_px_hoja; 
 end
