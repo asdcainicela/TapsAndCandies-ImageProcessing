@@ -2,50 +2,59 @@ classdef app_exported < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
-        UIFigure       matlab.ui.Figure
-        UITableCount   matlab.ui.control.Table
-        UITableObject  matlab.ui.control.Table
-        ImagePhoto2    matlab.ui.control.Image
-        ImagePhoto1    matlab.ui.control.Image
-        ImageVideo     matlab.ui.control.Image
-        Image          matlab.ui.control.Image
-        UIAxesPhoto2   matlab.ui.control.UIAxes
-        UIAxesPhoto1   matlab.ui.control.UIAxes
-        UIAxesVideo    matlab.ui.control.UIAxes
+        UIFigure          matlab.ui.Figure
+        DropDownLanguage  matlab.ui.control.DropDown
+        UITableCount      matlab.ui.control.Table
+        UITableObject     matlab.ui.control.Table
+        ImagePhoto2       matlab.ui.control.Image
+        ImagePhoto1       matlab.ui.control.Image
+        ImageVideo        matlab.ui.control.Image
+        Image_en          matlab.ui.control.Image
+        Image_es          matlab.ui.control.Image
+        UIAxesPhoto2      matlab.ui.control.UIAxes
+        UIAxesPhoto1      matlab.ui.control.UIAxes
+        UIAxesVideo       matlab.ui.control.UIAxes
     end
 
     
     properties (Access = public) 
-        StartVideoBtn   % Botón Start Video
-        Capture1Btn     % Botón Capture 1
-        Capture2Btn     % Botón Capture 2
-        Load1Btn        % Botón Load 1
-        Load2Btn        % Botón Load 2
-        Save1Btn        % Botón Save 1
-        ClearAllBtn     % Botón Clear all
-        Save2Btn       % Botón Save 2
-        ProcessBtn     % Botón Process
-        ExportBtn       %Botón export data
+    StartVideoBtn   % Botón Start Video
+    Capture1Btn     % Botón Capture 1
+    Capture2Btn     % Botón Capture 2
+    Load1Btn        % Botón Load 1
+    Load2Btn        % Botón Load 2
+    Save1Btn        % Botón Save 1
+    ClearAllBtn     % Botón Clear all
+    Save2Btn        % Botón Save 2
+    ProcessBtn      % Botón Process
+    ExportBtn       % Botón export data
 
-        % ---- camera ---- %
-        cam % Objeto de webcam
-        timerObj % Objeto de temporizador para actualizar video
-        isCameraRunning = false % Estado de la cámara
+    % ---- camera ---- %
+    cam             % Objeto de webcam
+    timerObj        % Objeto de temporizador para actualizar video
+    isCameraRunning = false
 
-        imagePhoto1Data % Data de la imagen 1
-        imagePhoto2Data % Data de la imagen 2
+    imagePhoto1Data % Data de la imagen 1
+    imagePhoto2Data % Data de la imagen 2
 
-        % save data
-        isProcessOk = false
-        Data_           % guardar los datos de todo 
-        Tfinal_;         % tablita sin procesar
-        Taligned_;       % ella ya limpiado
-        counts_;         % conteo
+    % save data
+    isProcessOk = false
+    Data_           % guardar los datos de todo 
+    Tfinal_         % tablita sin procesar
+    Taligned_       % ella ya limpiado
+    counts_         % conteo
 
-        %idioma
-        Language = "es"
+    % idioma
+    Language = "en"
 
-    end
+    ButtonsByID
+
+    % propeidades para la configuracion---
+    translations    % para la tabla de traducciones
+    styles          % para la tabla de estilos
+    layout          % para la tabla de layout
+end
+
     
     methods (Access = private)
         
@@ -53,45 +62,49 @@ classdef app_exported < matlab.apps.AppBase
         function onButtonClicked(app, btnName)
             uialert(app.UIFigure, sprintf("Botón %s presionado!", btnName), "Aviso");
         end
-        function InitVideo(app)
+
+        function toggleVideo(app)
+            stCurrent = app.styles(app.styles.ID==1, :);  % estilo "Start Video"
+            btn = app.ButtonsByID(1);                    % el botón que cambia
+        
             if app.isCameraRunning
-                % Si la cámara está activa, la pausamos
-                stop(app.timerObj);
-                delete(app.timerObj);
+                % === detener video ===
+                stop(app.timerObj); delete(app.timerObj);
                 app.timerObj = [];
                 app.isCameraRunning = false;
-                
-                % Restauramos el botón a estado inicial
-                app.StartVideoBtn.Text = 'Start Video';
-                app.StartVideoBtn.Color = '#0097a7';
-                app.StartVideoBtn.BackgroundHexColor = '#c7e9e9';
-                
-                % Mostramos el placeholder
-                app.ImageVideo.Visible = 'on';
+                app.ImageVideo.Visible = "on";
+        
+                % Volvemos al estilo original (Start Video, verde-azul)
+                btn.Text = app.translations(app.translations.ID==1, :).(app.Language);  
+                btn.Color = stCurrent.Color;
+                btn.BackgroundHexColor = stCurrent.BGColor;
+                btn.HoverColor = stCurrent.HoverColor;
+        
             else
-                % Si la cámara no está activa, la iniciamos
+                % === iniciar video ===
                 if isempty(app.cam) || ~isvalid(app.cam)
                     app.cam = webcam;
-                end
-                
-                app.ImageVideo.Visible = 'off';
-                cla(app.UIAxesVideo, "reset");
-                
+                end 
+                app.ImageVideo.Visible = "off";
+                cla(app.UIAxesVideo,"reset");
                 app.timerObj = timer(...
                     'ExecutionMode', 'fixedRate', ...
                     'Period', 0.2, ...
                     'TimerFcn', @(~,~) mostrarVideo(app));
-                
                 start(app.timerObj);
                 app.isCameraRunning = true;
-                
-                % Cambiamos el botón a estado "Pause"
-                app.StartVideoBtn.Text = 'Stop Video';
-                app.StartVideoBtn.Color = '#FF8C00';
-                app.StartVideoBtn.BackgroundHexColor = '#c7e9e9';
-            end
-        end
         
+                % Aplicamos estilo alternativo (Stop Video, naranja)
+                idAlt = stCurrent.toggleId;                               
+                stAlt = app.styles(app.styles.ID==idAlt, :);  
+                trAlt = app.translations(app.translations.ID==idAlt, :);  
+                btn.Text = trAlt.(app.Language);   % "Detener Video"/"Stop Video"
+                btn.Color = stAlt.Color;
+                btn.BackgroundHexColor = stAlt.BGColor;
+                btn.HoverColor = stAlt.HoverColor;
+            end 
+        end
+
         function ScreenButton(app, value)
             if ~app.isCameraRunning
                 uialert(app.UIFigure, 'First, you must start the camera', 'Error');
@@ -100,14 +113,14 @@ classdef app_exported < matlab.apps.AppBase
             
             try
                 foto = snapshot(app.cam);
-                if value == "Camera 1"
+                if value == 1
                     app.ImagePhoto1.Visible = "off";
                     cla(app.UIAxesPhoto1, "reset");
                     image(app.UIAxesPhoto1, foto);
                     app.UIAxesPhoto1.XTick = [];
                     app.UIAxesPhoto1.YTick = [];
                     app.imagePhoto1Data = foto; % Guardamos imagen
-                elseif value == "Camera 2"
+                elseif value == 2
                     app.ImagePhoto2.Visible = "off";
                     cla(app.UIAxesPhoto2, "reset");
                     image(app.UIAxesPhoto2, foto);
@@ -140,14 +153,14 @@ classdef app_exported < matlab.apps.AppBase
                 return;
             end
             img = imread(fullfile(path, file));
-            if camName == "Camera 1"
+            if camName == 1
                 app.imagePhoto1Data = img;
                 app.ImagePhoto1.Visible = "off";
                 cla(app.UIAxesPhoto1, "reset");
                 image(app.UIAxesPhoto1, img);
                 app.UIAxesPhoto1.XTick = [];
                 app.UIAxesPhoto1.YTick = [];
-            elseif camName == "Camera 2"
+            elseif camName == 2
                 app.imagePhoto2Data = img;
                 app.ImagePhoto2.Visible = "off";
                 cla(app.UIAxesPhoto2, "reset");
@@ -167,7 +180,7 @@ classdef app_exported < matlab.apps.AppBase
             end
             
             try
-                %% === Ejecutar la detección y conteos ===
+                % == Ejecutar la detección y conteos ===
                 [Tfinal, datos] = detectarEnImagenes(app.imagePhoto1Data, app.imagePhoto2Data);
                 app.Data_ = datos;
                 Taligned = emparejarDetecciones(Tfinal);
@@ -176,20 +189,20 @@ classdef app_exported < matlab.apps.AppBase
                 bottle = counts.Bottle_Cap;
                 lentil = counts.Lentil;
             
-                %% === Configuración de idioma ===
+                % === Configuración de idioma ===
                 if app.Language == "es"
                     firstColBottle    = 'Tapas';
                     firstColLentil    = 'Lentejas';
                     columnHeadersCount = {'Tipo', 'Morado', 'Amarillo', 'Verde', 'Azul', 'Total'};
                     %columnHeadersObj   = {'Tipo', 'Color', 'X0', 'Y0', 'X1', 'Y1'};
                 else
-                    firstColBottle    = 'Bottle_Cap';
+                    firstColBottle    = 'Bottle Cap';
                     firstColLentil    = 'Lentil';
                     columnHeadersCount = {'Type', 'Purple', 'Yellow', 'Green', 'Blue', 'Total'};
                     %columnHeadersObj   = {'Type', 'Color', 'X0', 'Y0', 'X1', 'Y1'};
                 end
             
-                %% === Llenar UITableCount (tabla de conteos) ===
+                % === Llenar UITableCount (tabla de conteos) ===
                 dataCount = {
                     firstColBottle, getFieldOrZero(bottle, 'Purple'), getFieldOrZero(bottle, 'Yellow'), ...
                                     getFieldOrZero(bottle, 'Green'),  getFieldOrZero(bottle, 'Blue'), bottle.Total;
@@ -202,7 +215,7 @@ classdef app_exported < matlab.apps.AppBase
                 app.UITableCount.Data            = dataCount;
                 app.UITableCount.Visible         = 'on';
 
-                 %% === Llenar UITableObject (tabla de objetos detectados) ===
+                 % === Llenar UITableObject (tabla de objetos detectados) ===
                 Tmostrar = Taligned;
                 
                 % Selecciona solo las columnas que quieres
@@ -235,7 +248,7 @@ classdef app_exported < matlab.apps.AppBase
                 app.UITableObject.Visible         = 'on';
  
                             
-                %% === Guardar resultados en propiedades ===
+                % === Guardar resultados en propiedades ===
                 app.Tfinal_  = Tfinal;
                 app.Taligned_= Taligned;
                 app.counts_  = counts;
@@ -279,6 +292,55 @@ classdef app_exported < matlab.apps.AppBase
             %cla(app.UIAxesVideo, 'reset');
         end
 
+        function updateTables(app)
+            if isempty(app.Taligned_) || isempty(app.counts_)
+                return;
+            end
+        
+            bottle = app.counts_.Bottle_Cap;
+            lentil = app.counts_.Lentil;
+        
+            if app.Language == "es"
+                firstColBottle    = 'Tapas';
+                firstColLentil    = 'Lentejas';
+                columnHeadersCount = {'Tipo', 'Morado', 'Amarillo', 'Verde', 'Azul', 'Total'};
+                columnHeadersObj   = {'Tipo', 'Color', 'X0', 'Y0', 'X1', 'Y1'};
+            else
+                firstColBottle    = 'Bottle Cap';
+                firstColLentil    = 'Lentil';
+                columnHeadersCount = {'Type', 'Purple', 'Yellow', 'Green', 'Blue', 'Total'};
+                columnHeadersObj   = {'Type', 'Color', 'X0', 'Y0', 'X1', 'Y1'};
+            end
+        
+            % Tabla de conteos
+            dataCount = {
+                firstColBottle, getFieldOrZero(bottle, 'Purple'), getFieldOrZero(bottle, 'Yellow'), ...
+                                getFieldOrZero(bottle, 'Green'),  getFieldOrZero(bottle, 'Blue'), bottle.Total;
+                firstColLentil, getFieldOrZero(lentil, 'Purple'), getFieldOrZero(lentil, 'Yellow'), ...
+                                getFieldOrZero(lentil, 'Green'),  getFieldOrZero(lentil, 'Blue'), lentil.Total;
+            };
+            app.UITableCount.ColumnName = columnHeadersCount;
+            app.UITableCount.Data = dataCount;
+        
+            % Tabla de objetos
+            Tmostrar = app.Taligned_;
+            colsDeseadas = {'Tipo', 'Color', 'X0', 'Y0', 'X1', 'Y1'};
+            Tmostrar = Tmostrar(:, colsDeseadas); 
+            Tmostrar = formatearDecimales(Tmostrar, 2); 
+        
+            if app.Language == "es"
+                Tmostrar.Tipo = strrep(Tmostrar.Tipo, "Bottle Cap", "Tapas");
+                Tmostrar.Tipo = strrep(Tmostrar.Tipo, "Lentil", "Lentejas");
+                Tmostrar.Color = strrep(Tmostrar.Color, "Purple", "Morado");
+                Tmostrar.Color = strrep(Tmostrar.Color, "Yellow", "Amarillo");
+                Tmostrar.Color = strrep(Tmostrar.Color, "Green", "Verde");
+                Tmostrar.Color = strrep(Tmostrar.Color, "Blue", "Azul");
+            end
+        
+            app.UITableObject.ColumnName = columnHeadersObj;
+            app.UITableObject.Data = Tmostrar;
+        end
+
     end
     
     
@@ -292,9 +354,6 @@ classdef app_exported < matlab.apps.AppBase
             catch ME
                 % Si hay error, restauramos el estado
                 app.isCameraRunning = false;
-                app.StartVideoBtn.Text = 'Start Video';
-                app.StartVideoBtn.Color = '#0097a7';
-                app.StartVideoBtn.BackgroundHexColor = '#c7e9e9';
                 app.ImageVideo.Visible = 'on';
                 uialert(app.UIFigure, ME.message, 'Camera error');
             end
@@ -307,76 +366,130 @@ classdef app_exported < matlab.apps.AppBase
 
         % Code that executes after component creation
         function startupFcn(app)
-            app.Language = "es"; 
-            basePath = fullfile(pwd, 'functions');  % carpeta raíz
-            addpath(genpath(basePath));             % agrega todas las subcarpetas automáticamente
-            %addpath(genpath(fullfile(pwd, 'round_button'))); % path de los botones 
-
-            %app.UIFigure.Color = "#1a1a1a";
-            %config = readtable(fullfile(pwd, 'config', 'boton_config.csv'), 'TextType', 'string');
-            config = readtable(fullfile(pwd, 'config', 'boton_config.csv'), ...
-                'TextType', 'string', ...
-                'VariableNamingRule', 'preserve');  
-
-
-            % Convertir columna Bold a logical
-            if iscell(config.Bold)
-                config.Bold = strcmpi(config.Bold, 'true');
-            elseif isstring(config.Bold)
-                config.Bold = lower(config.Bold) == "true";
+            
+            if app.Language == "es"
+                app.Image_es.Visible = "on";
+                app.Image_en.Visible = "off";
+            else
+                app.Image_es.Visible = "off";
+                app.Image_en.Visible = "on";
             end
+            basePath_ = fullfile(pwd, 'functions');  % carpeta raíz para todas las funciones
+            addpath(genpath(basePath_));             % agrega todas las funciones a la ruta
+        
+            basePath = fullfile(pwd, 'config');  
             
-            for i = 1:height(config)
-                row = config(i, :);
-            
-                % Selecciona el texto correcto según el idioma
-                if app.Language == "es"
-                    btnText = row.("Text-es");
-                else
-                    btnText = row.("Text-en");
-                end
-            
+            % --- Leer CSVs y asignar a propiedades ---
+            app.translations = readtable(fullfile(basePath, 'translations.csv'), ...
+                'TextType', 'string', 'VariableNamingRule', 'preserve');
+        
+            app.styles = readtable(fullfile(basePath, 'styles.csv'), ...
+                'TextType', 'string', 'VariableNamingRule', 'preserve', ...
+                'Delimiter', ',');  % usa el delimitador correcto
+            app.layout = readtable(fullfile(basePath, 'layout.csv'), ...
+                'TextType', 'string', 'VariableNamingRule', 'preserve');
+        
+            % Limpiar espacios en encabezados
+            app.styles.Properties.VariableNames = strtrim(app.styles.Properties.VariableNames);
+            disp('Columnas en styles:'); disp(app.styles.Properties.VariableNames)
+            disp(app.translations.Properties.VariableNames)
+            disp(app.layout.Properties.VariableNames)
+        
+            app.ButtonsByID = containers.Map('KeyType','double','ValueType','any');
+        
+            % Convertir columna Bold a logical
+            app.styles.Bold = strcmpi(strtrim(app.styles.Bold), "true"); 
+        
+            idsToCreate = 1:10;  % solo hasta 10
+            for id = idsToCreate
+                tr = app.translations(app.translations.ID == id, :);
+                st = app.styles(app.styles.ID == id, :);
+                pos = app.layout(app.layout.ID == id, :);
+        
+                btnText = tr.(app.Language);  % es o en
+        
                 btn = round_button(app.UIFigure, ...
-                    "Position", [row.PosX, row.PosY + 11, row.Width, row.Height], ...
-                    "Color", row.Color, ...
-                    "FontColor", row.FontColor, ...
+                    "Position", [pos.PosX, pos.PosY, pos.Width, pos.Height], ...
                     "Text", btnText, ...
-                    "Bold", row.Bold, ...
-                    "BackgroundHexColor", row.BGColor, ...
-                    "HoverColor", row.HoverColor);
-            
-                switch row.Tag
-                    case "start_video"
-                        app.StartVideoBtn = btn;
-                        btn.ButtonPushedFcn = @(~,~) app.InitVideo();
-                    case "capture_1"
-                        app.Capture1Btn = btn;
-                        btn.ButtonPushedFcn = @(~,~) app.ScreenButton("Camera 1");
-                    case "capture_2"
-                        app.Capture2Btn = btn;
-                        btn.ButtonPushedFcn = @(~,~) app.ScreenButton("Camera 2");
-                    case "load_1"
-                        app.Load1Btn = btn;
-                        btn.ButtonPushedFcn = @(~,~) app.LoadImage("Camera 1");
-                    case "load_2"
-                        app.Load2Btn = btn;
-                        btn.ButtonPushedFcn = @(~,~) app.LoadImage("Camera 2");
-                    case "save_1"
-                        app.Save1Btn = btn;
+                    "FontColor", st.FontColor, ...
+                    "Bold", st.Bold, ...
+                    "Color", st.Color, ...
+                    "HoverColor", st.HoverColor, ...
+                    "BackgroundHexColor", st.BGColor);
+        
+                app.ButtonsByID(id) = btn;
+        
+                switch id
+                    case 1
+                        btn.ButtonPushedFcn = @(~,~) app.toggleVideo(); 
+                    case 2
+                        btn.ButtonPushedFcn = @(~,~) app.ScreenButton(1);
+                    case 3
+                        btn.ButtonPushedFcn = @(~,~) app.ScreenButton(2);
+                    case 4
+                        btn.ButtonPushedFcn = @(~,~) app.LoadImage(1);
+                    case 5
+                        btn.ButtonPushedFcn = @(~,~) app.LoadImage(2);
+                    case 6
                         btn.ButtonPushedFcn = @(~,~) app.SaveImage(app.imagePhoto1Data, "Save Camera 1");
-                    case "save_2"
-                        app.Save2Btn = btn;
-                        btn.ButtonPushedFcn = @(~,~) app.SaveImage(app.imagePhoto2Data, "Save Camera 2");
-                    case "clear_all"
-                        app.ClearAllBtn = btn;
+                    case 7
                         btn.ButtonPushedFcn = @(~,~) app.ClearAll();
-                    case "process"
-                        app.ProcessBtn = btn;
+                    case 8
+                        btn.ButtonPushedFcn = @(~,~) app.SaveImage(app.imagePhoto2Data, "Save Camera 2");
+                    case 9
                         btn.ButtonPushedFcn = @(~,~) app.ProcessImages();
-                    case "export_data"
-                        app.ExportBtn = btn;
+                    case 10
                         btn.ButtonPushedFcn = @(~,~) app.ExportData();
                 end
+            end 
+
+        end
+
+        % Value changed function: DropDownLanguage
+        function DropDownLanguageValueChanged(app, event)
+            app.Language = app.DropDownLanguage.Value;
+            if app.Language == "es"
+                app.Image_es.Visible = "on";
+                app.Image_en.Visible = "off";
+            else
+                app.Image_es.Visible = "off";
+                app.Image_en.Visible = "on";
+            end
+        
+            allIDs = keys(app.ButtonsByID);  % IDs de todos los botones
+            for i = 1:numel(allIDs)
+                id = allIDs{i};
+                btn = app.ButtonsByID(id);           % el botón
+                trCurrent = app.translations(app.translations.ID==id, :); % traducción base
+                stCurrent = app.styles(app.styles.ID==id, :);             % estilo base
+        
+                if id == 1
+                    % Este es el botón Start/Stop Video
+                    if app.isCameraRunning
+                        % Cámara encendida => usar traducción y estilo alternativos
+                        idAlt = stCurrent.toggleId;  % obtener id alternativo
+                        trAlt = app.translations(app.translations.ID==idAlt, :);  
+                        stAlt = app.styles(app.styles.ID==idAlt, :);  
+                        btn.Text = trAlt.(app.Language);         % texto alternativo
+                        btn.Color = stAlt.Color;
+                        btn.BackgroundHexColor = stAlt.BGColor;
+                        btn.HoverColor = stAlt.HoverColor;
+                    else
+                        % Cámara apagada => usar texto original
+                        btn.Text = trCurrent.(app.Language);     % texto por defecto
+                        btn.Color = stCurrent.Color;
+                        btn.BackgroundHexColor = stCurrent.BGColor;
+                        btn.HoverColor = stCurrent.HoverColor;
+                    end
+                else
+                    % Otros botones: solo texto
+                    btn.Text = trCurrent.(app.Language);
+                end
+            end
+        
+            disp("Idioma seleccionado: " + app.Language) 
+            if app.isProcessOk
+                app.updateTables();
             end
 
 
@@ -431,10 +544,15 @@ classdef app_exported < matlab.apps.AppBase
             zlabel(app.UIAxesPhoto2, 'Z')
             app.UIAxesPhoto2.Position = [348 101 293 224];
 
-            % Create Image
-            app.Image = uiimage(app.UIFigure);
-            app.Image.Position = [0 0 1366 768];
-            app.Image.ImageSource = fullfile(pathToMLAPP, 'media', 'img-src', 'background-es.png');
+            % Create Image_es
+            app.Image_es = uiimage(app.UIFigure);
+            app.Image_es.Position = [0 0 1366 768];
+            app.Image_es.ImageSource = fullfile(pathToMLAPP, 'media', 'img-src', 'background-es.png');
+
+            % Create Image_en
+            app.Image_en = uiimage(app.UIFigure);
+            app.Image_en.Position = [0 0 1366 768];
+            app.Image_en.ImageSource = fullfile(pathToMLAPP, 'media', 'img-src', 'background-en.png');
 
             % Create ImageVideo
             app.ImageVideo = uiimage(app.UIFigure);
@@ -467,6 +585,13 @@ classdef app_exported < matlab.apps.AppBase
             app.UITableCount.Visible = 'off';
             app.UITableCount.FontSize = 14;
             app.UITableCount.Position = [739 433 561 80];
+
+            % Create DropDownLanguage
+            app.DropDownLanguage = uidropdown(app.UIFigure);
+            app.DropDownLanguage.Items = {'en', 'es'};
+            app.DropDownLanguage.ValueChangedFcn = createCallbackFcn(app, @DropDownLanguageValueChanged, true);
+            app.DropDownLanguage.Position = [1 746 70 22];
+            app.DropDownLanguage.Value = 'en';
 
             % Show the figure after all components are created
             app.UIFigure.Visible = 'on';
