@@ -4,14 +4,23 @@ basePath = fullfile(pwd, 'functions');  % carpeta raíz
 addpath(genpath(basePath));             % agrega todas las subcarpetas automáticamente
 
 % Procesamiento
-Tfinal    = detectarEnImagenes('media/img-test/test2/imagen1.png', 'media/img-test/test2/imagen2.png', false);
+[Tfinal, datos]   = detectarEnImagenes('media/img-test/test2/imagen1.png', 'media/img-test/test2/imagen2.png'); 
 Tfinal = formatearDecimales(Tfinal,2);
 Taligned  = emparejarDetecciones(Tfinal);
 counts    = calcularConteos(Taligned);
 
-% Guardar
-guardarResultados(Tfinal, Taligned, counts, fullfile(pwd, 'result'));
-
 % Mostrar resultados
 %disp(Tfinal);
-%disp(Taligned);
+disp(Taligned);
+
+
+% Guardar
+guardar = 0;
+if guardar == 1
+    guardarResultados(Tfinal, Taligned, counts, fullfile(pwd, 'result'), datos, true);
+
+    %guardar imagenes
+    guardar = 0;
+end
+
+

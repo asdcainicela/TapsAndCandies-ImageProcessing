@@ -25,6 +25,7 @@ classdef app_exported < matlab.apps.AppBase
         ClearAllBtn     % Botón Clear all
         Save2Btn       % Botón Save 2
         ProcessBtn     % Botón Process
+        ExportBtn       %Botón export data
 
         % ---- camera ---- %
         cam % Objeto de webcam
@@ -33,6 +34,16 @@ classdef app_exported < matlab.apps.AppBase
 
         imagePhoto1Data % Data de la imagen 1
         imagePhoto2Data % Data de la imagen 2
+
+        % save data
+        isProcessOk = false
+        Data_           % guardar los datos de todo 
+        Tfinal_;         % tablita sin procesar
+        Taligned_;       % ella ya limpiado
+        counts_;         % conteo
+
+        %idioma
+        Language = "es"
 
     end
     
@@ -147,77 +158,110 @@ classdef app_exported < matlab.apps.AppBase
         end
 
         function ProcessImages(app)
+            % === Antes que nada, verifica que hay imágenes cargadas ===
+            if isempty(app.imagePhoto1Data) || isempty(app.imagePhoto2Data)
+                uialert(app.UIFigure, ...
+                    'Please capture or load both images first.', ...
+                    'Error');
+                return;
+            end
+            
             try
-                % Validar que hay imágenes capturadas o cargadas
-                if isempty(app.imagePhoto1Data) || isempty(app.imagePhoto2Data)
-                    uialert(app.UIFigure, ...
-                        'Primero captura o carga ambas imágenes.', ...
-                        'Error');
-                    return;
-                end
-        
-                % Ejecutar la detección con las imágenes en memoria
-                Tfinal = detectarEnImagenes(app.imagePhoto1Data, app.imagePhoto2Data, false);
+                %% === Ejecutar la detección y conteos ===
+                [Tfinal, datos] = detectarEnImagenes(app.imagePhoto1Data, app.imagePhoto2Data);
+                app.Data_ = datos;
                 Taligned = emparejarDetecciones(Tfinal);
                 counts = calcularConteos(Taligned);
-                %guardarResultados(Tfinal, Taligned, counts, fullfile(pwd, 'result'));
-        
-                % Mostrar resultados
-                % disp('=== Tfinal ===');
-                % disp(Tfinal);
-                % disp('=== Taligned ===');
-                % disp(Taligned);
-                % disp('=== Counts ===');
-                % disp(counts);
-                
+            
                 bottle = counts.Bottle_Cap;
                 lentil = counts.Lentil;
-                 
-
-                data = {
-                    'Bottle_Cap', getFieldOrZero(bottle, 'Purple'), getFieldOrZero(bottle, 'Yellow'), ...
-                                  getFieldOrZero(bottle, 'Green'),  getFieldOrZero(bottle, 'Blue'),    bottle.Total;
-                    'Lentil',     getFieldOrZero(lentil, 'Purple'), getFieldOrZero(lentil, 'Yellow'), ...
-                                  getFieldOrZero(lentil, 'Green'),  getFieldOrZero(lentil, 'Blue'),    lentil.Total;
-                }; 
-
-                
-                % Asignar a la UITable
-                % color en [R G B] entre 0 y 1
-                bgColor = [238, 242, 247] / 255;
-                
-                app.UITableCount.BackgroundColor =  bgColor; 
-
-                app.UITableCount.Visible = 'on';    
-                app.UITableCount.Data = data; 
-
-                try
-                     % Selecciona solo las columnas que quieres mostrar
-                    Tmostrar = Taligned(:, {'Tipo','Color','X0','Y0','X1','Y1'}); 
-    
-                    % Formatea a 2 decimales:
-                    Tmostrar = formatearDecimales(Tmostrar, 2);
-                    app.UITableObject.BackgroundColor =  bgColor;
-                    app.UITableObject.Visible = 'on';      % hacerla visible
-                    app.UITableObject.Data = Tmostrar;
-                catch ME
-                    uialert(app.UIFigure, ME.message, 'Error al procesar imágenes');
+            
+                %% === Configuración de idioma ===
+                if app.Language == "es"
+                    firstColBottle    = 'Tapas';
+                    firstColLentil    = 'Lentejas';
+                    columnHeadersCount = {'Tipo', 'Morado', 'Amarillo', 'Verde', 'Azul', 'Total'};
+                    %columnHeadersObj   = {'Tipo', 'Color', 'X0', 'Y0', 'X1', 'Y1'};
+                else
+                    firstColBottle    = 'Bottle_Cap';
+                    firstColLentil    = 'Lentil';
+                    columnHeadersCount = {'Type', 'Purple', 'Yellow', 'Green', 'Blue', 'Total'};
+                    %columnHeadersObj   = {'Type', 'Color', 'X0', 'Y0', 'X1', 'Y1'};
                 end
- 
-                % Asígnalo a la Table del UI
-                
+            
+                %% === Llenar UITableCount (tabla de conteos) ===
+                dataCount = {
+                    firstColBottle, getFieldOrZero(bottle, 'Purple'), getFieldOrZero(bottle, 'Yellow'), ...
+                                    getFieldOrZero(bottle, 'Green'),  getFieldOrZero(bottle, 'Blue'), bottle.Total;
+                    firstColLentil, getFieldOrZero(lentil, 'Purple'), getFieldOrZero(lentil, 'Yellow'), ...
+                                    getFieldOrZero(lentil, 'Green'),  getFieldOrZero(lentil, 'Blue'), lentil.Total;
+                };
+                bgColor = [238, 242, 247]/255;  % Color de fondo común
+                app.UITableCount.BackgroundColor = bgColor;
+                app.UITableCount.ColumnName      = columnHeadersCount;
+                app.UITableCount.Data            = dataCount;
+                app.UITableCount.Visible         = 'on';
 
-        
-                % (Opcional) Mostrar los conteos en una UITable si tienes una
-                % Por ejemplo:
-                % app.UITableObject.Data = struct2table(counts);  % depende de cómo sea "counts"
-        
+                 %% === Llenar UITableObject (tabla de objetos detectados) ===
+                Tmostrar = Taligned;
+                
+                % Selecciona solo las columnas que quieres
+                colsDeseadas = {'Tipo', 'Color', 'X0', 'Y0', 'X1', 'Y1'};
+                Tmostrar = Tmostrar(:, colsDeseadas);  % quedarnos solo con las columnas que nos interesan
+                Tmostrar = formatearDecimales(Tmostrar, 2); 
+                
+                if app.Language == "es"
+                    % Traducir automáticamente ciertas columnas que sean categóricas
+                    if ismember('Tipo', Tmostrar.Properties.VariableNames)
+                        Tmostrar.Tipo = strrep(Tmostrar.Tipo, "Bottle Cap", "Tapas");   % Ojo aquí el "_"
+                        Tmostrar.Tipo = strrep(Tmostrar.Tipo, "Lentil", "Lentejas");
+                    end
+                    if ismember('Color', Tmostrar.Properties.VariableNames)
+                        Tmostrar.Color = strrep(Tmostrar.Color, "Purple", "Morado");
+                        Tmostrar.Color = strrep(Tmostrar.Color, "Yellow", "Amarillo");
+                        Tmostrar.Color = strrep(Tmostrar.Color, "Green", "Verde");
+                        Tmostrar.Color = strrep(Tmostrar.Color, "Blue", "Azul");
+                    end
+                    columnHeadersObj = {'Tipo', 'Color', 'X0', 'Y0', 'X1', 'Y1'};
+                else
+                    columnHeadersObj = {'Type', 'Color', 'X0', 'Y0', 'X1', 'Y1'};
+                end
+                
+                % Configuración visual
+                bgColor = [238, 242, 247]/255;
+                app.UITableObject.BackgroundColor = bgColor;
+                app.UITableObject.ColumnName      = columnHeadersObj;
+                app.UITableObject.Data            = Tmostrar;
+                app.UITableObject.Visible         = 'on';
+ 
+                            
+                %% === Guardar resultados en propiedades ===
+                app.Tfinal_  = Tfinal;
+                app.Taligned_= Taligned;
+                app.counts_  = counts;
+                app.isProcessOk = true;
+            
             catch ME
                 uialert(app.UIFigure, ME.message, 'Error al procesar imágenes');
             end
+
+        end
+        
+       %guardar en la carpeta result/
+       function ExportData(app)
+            if app.isProcessOk
+                %  app.Data_ sea el struct tipo:
+                % app.Data_.start.img, app.Data_.start.det, app.Data_.start.cmX, ...
+                outputDir = fullfile(pwd, 'result');
+                guardarResultados(app.Tfinal_, app.Taligned_, app.counts_, outputDir, app.Data_, false);
+                disp("Guardado en la carpeta result")
+            else
+                uialert(app.UIFigure, ...
+                    'Please process the data before exporting.', ...
+                    'Error');
+            end
         end
 
-        
         % Limpiar todas las imágenes
         function ClearAll(app)
             % Limpiar los datos
@@ -263,62 +307,78 @@ classdef app_exported < matlab.apps.AppBase
 
         % Code that executes after component creation
         function startupFcn(app)
+            app.Language = "es"; 
             basePath = fullfile(pwd, 'functions');  % carpeta raíz
             addpath(genpath(basePath));             % agrega todas las subcarpetas automáticamente
             %addpath(genpath(fullfile(pwd, 'round_button'))); % path de los botones 
 
             %app.UIFigure.Color = "#1a1a1a";
-            config = readtable(fullfile(pwd, 'config/','boton_config.csv'), 'TextType', 'string');
-            
-            % Convertir la columna Bold a logical
+            %config = readtable(fullfile(pwd, 'config', 'boton_config.csv'), 'TextType', 'string');
+            config = readtable(fullfile(pwd, 'config', 'boton_config.csv'), ...
+                'TextType', 'string', ...
+                'VariableNamingRule', 'preserve');  
+
+
+            % Convertir columna Bold a logical
             if iscell(config.Bold)
                 config.Bold = strcmpi(config.Bold, 'true');
             elseif isstring(config.Bold)
                 config.Bold = lower(config.Bold) == "true";
             end
-
+            
             for i = 1:height(config)
                 row = config(i, :);
+            
+                % Selecciona el texto correcto según el idioma
+                if app.Language == "es"
+                    btnText = row.("Text-es");
+                else
+                    btnText = row.("Text-en");
+                end
+            
                 btn = round_button(app.UIFigure, ...
                     "Position", [row.PosX, row.PosY + 11, row.Width, row.Height], ...
                     "Color", row.Color, ...
                     "FontColor", row.FontColor, ...
-                    "Text", row.Text, ...
+                    "Text", btnText, ...
                     "Bold", row.Bold, ...
                     "BackgroundHexColor", row.BGColor, ...
                     "HoverColor", row.HoverColor);
-        
-                switch row.Text
-                    case "Start Video"
+            
+                switch row.Tag
+                    case "start_video"
                         app.StartVideoBtn = btn;
-                        app.StartVideoBtn.ButtonPushedFcn = @(~, ~) app.InitVideo();
-                    case "Capture 1"
+                        btn.ButtonPushedFcn = @(~,~) app.InitVideo();
+                    case "capture_1"
                         app.Capture1Btn = btn;
-                        btn.ButtonPushedFcn = @(~, ~) app.ScreenButton("Camera 1");
-                    case "Capture 2"
+                        btn.ButtonPushedFcn = @(~,~) app.ScreenButton("Camera 1");
+                    case "capture_2"
                         app.Capture2Btn = btn;
-                        btn.ButtonPushedFcn = @(~, ~) app.ScreenButton("Camera 2");
-                    case "Load 1"
+                        btn.ButtonPushedFcn = @(~,~) app.ScreenButton("Camera 2");
+                    case "load_1"
                         app.Load1Btn = btn;
-                        btn.ButtonPushedFcn = @(~, ~) app.LoadImage("Camera 1");
-                    case "Load 2"
+                        btn.ButtonPushedFcn = @(~,~) app.LoadImage("Camera 1");
+                    case "load_2"
                         app.Load2Btn = btn;
-                        btn.ButtonPushedFcn = @(~, ~) app.LoadImage("Camera 2");
-                    case "Save 1"
+                        btn.ButtonPushedFcn = @(~,~) app.LoadImage("Camera 2");
+                    case "save_1"
                         app.Save1Btn = btn;
-                        btn.ButtonPushedFcn = @(~, ~) app.SaveImage(app.imagePhoto1Data, 'Save Camera 1');
-                    case "Save 2"
+                        btn.ButtonPushedFcn = @(~,~) app.SaveImage(app.imagePhoto1Data, "Save Camera 1");
+                    case "save_2"
                         app.Save2Btn = btn;
-                        btn.ButtonPushedFcn = @(~, ~) app.SaveImage(app.imagePhoto2Data, 'Save Camera 2');
-                    case "Clear all"
+                        btn.ButtonPushedFcn = @(~,~) app.SaveImage(app.imagePhoto2Data, "Save Camera 2");
+                    case "clear_all"
                         app.ClearAllBtn = btn;
-                        btn.ButtonPushedFcn = @(~, ~) app.ClearAll();
-                    case "Process"
+                        btn.ButtonPushedFcn = @(~,~) app.ClearAll();
+                    case "process"
                         app.ProcessBtn = btn;
-                        %btn.ButtonPushedFcn = @(~, ~) app.onButtonClicked("Process");
-                        btn.ButtonPushedFcn = @(~, ~) app.ProcessImages();
+                        btn.ButtonPushedFcn = @(~,~) app.ProcessImages();
+                    case "export_data"
+                        app.ExportBtn = btn;
+                        btn.ButtonPushedFcn = @(~,~) app.ExportData();
                 end
             end
+
 
         end
     end
@@ -374,7 +434,7 @@ classdef app_exported < matlab.apps.AppBase
             % Create Image
             app.Image = uiimage(app.UIFigure);
             app.Image.Position = [0 0 1366 768];
-            app.Image.ImageSource = fullfile(pathToMLAPP, 'media', 'img-src', 'background-en.png');
+            app.Image.ImageSource = fullfile(pathToMLAPP, 'media', 'img-src', 'background-es.png');
 
             % Create ImageVideo
             app.ImageVideo = uiimage(app.UIFigure);
@@ -397,16 +457,16 @@ classdef app_exported < matlab.apps.AppBase
             app.UITableObject.RowName = {};
             app.UITableObject.Visible = 'off';
             app.UITableObject.FontSize = 14;
-            app.UITableObject.Position = [739 54 561 266];
+            app.UITableObject.Position = [739 36 561 289];
 
             % Create UITableCount
             app.UITableCount = uitable(app.UIFigure);
             app.UITableCount.BackgroundColor = [1 1 1;1 1 1];
-            app.UITableCount.ColumnName = {'Type'; 'Purple'; 'Yellow'; 'Green'; 'Blue'; 'Total'};
+            app.UITableCount.ColumnName = '';
             app.UITableCount.RowName = {};
             app.UITableCount.Visible = 'off';
             app.UITableCount.FontSize = 14;
-            app.UITableCount.Position = [739 438 561 83];
+            app.UITableCount.Position = [739 433 561 80];
 
             % Show the figure after all components are created
             app.UIFigure.Visible = 'on';
