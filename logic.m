@@ -13,5 +13,5 @@ counts    = calcularConteos(Taligned);
 guardarResultados(Tfinal, Taligned, counts, fullfile(pwd, 'result'));
 
 % Mostrar resultados
-disp(Tfinal);
-disp(Taligned);
+%disp(Tfinal);
+%disp(Taligned);
