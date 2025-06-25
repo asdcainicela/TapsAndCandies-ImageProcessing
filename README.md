@@ -1,20 +1,18 @@
-# TapsAndCandies-ImageProcessing (v1.0.5)
+# TapsAndCandies-ImageProcessing
 
-A MATLAB App Designer application for detecting, measuring, and matching plastic caps and candies (e.g. lentils) in images.
-This version is fully automated and requires the MATLAB Image Processing Toolbox.
-All the custom image-processing functions from earlier versions have been removed in favor of the Toolbox.
-The graphical user interface is in Spanish.
+A **MATLAB App Designer** application for detecting, measuring, and matching plastic caps and candies (e.g. lentils) in images.  
+This version (v2.0.0) features a fully localized user interface (English and Spanish) with a language dropdown allowing you to switch between languages dynamically.
 
 ## ✨ Features
-- Graphical user interface built in MATLAB App Designer (now only in Spanish).
-- Capture or load images directly from file or webcam.
-- Automatic scale calculation using detected A4 paper as reference.
-- Color segmentation and object classification (bottle caps and lentils) using Image Processing Toolbox.
+- Load images directly from file or capture with a webcam.
+- Interactive GUI built in **MATLAB App Designer** with multi-language support.
+- Automatic scale calibration using detected A4 paper as reference.
+- Color segmentation and object classification (**bottle caps** or **lentils**) powered by the **MATLAB Image Processing Toolbox**.
 - Compute object areas and centroid positions.
-- Match corresponding objects between start and end images.
-- Display results in tables and preview axes.
-- Export raw and matched detection results as CSV.
-- Summaries of object counts per color and type.
+- Match corresponding objects between `start` and `end` images.
+- Export raw and matched detection results as CSV files.
+- Display a summary of object counts per color and type.
+
 
 ## 📦 Requirements
 - MATLAB R2025a or later
@@ -31,42 +29,51 @@ The graphical user interface is in Spanish.
 
 ```
 TapsAndCandies-ImageProcessing/
-├── App.mlapp
-├── app_exported.m
-├── config/
-│   └── boton_config.csv
+├── app.mlapp               # Main App Designer file.
+├── app_exported.m          # Auto-generated exported version of the app.
+├── listTree.mlx            # Utility for listing file structure.
+├── logic.m                 # Standalone logic script without GUI.
+├── config/                 # CSV files for UI layout, styles, and translations.
 ├── functions/
-│   ├── detection/
+│   ├── detection/          # Image-processing and detection scripts.
 │   │   ├── calcularEscalaDesdeHoja.m
 │   │   ├── classify_shape.m
 │   │   ├── detectarEnImagenes.m
 │   │   ├── detectarObjetos.m
 │   │   ├── detectarObjetosEnMascaras.m
-│   │   ├── generarMascarasColor.m
-│   ├── matching/
+│   │   └── generarMascarasColor.m
+│   ├── matching/           # Matching and counting detected objects.
 │   │   ├── calcularConteos.m
 │   │   ├── convertirDeteccionATabla.m
-│   │   ├── emparejarDetecciones.m
-│   ├── preprocessing/
-│   │   ├── remove_nonborder_objects.m
-│   ├── round-button/
-│   │   ├── round_button.m
+│   │   └── emparejarDetecciones.m
+│   ├── preprocessing/      # Preprocessing utilities.
+│   │   └── remove_nonborder_objects.m
+│   ├── round-button/       # Custom UI round button component.
 │   │   ├── round_button.html
-│   │   ├── test_button.m
-│   ├── utils/
-│   │   ├── cargarEscalarImagen.m
-│   │   ├── formatearDecimales.m
-│   │   ├── getFieldOrZero.m
-│   │   ├── guardarDeteccionesImagenes.m
-│   │   ├── guardarResultados.m
-│   │   ├── visualizarDetecciones.m
-├── listTree.mlx
-├── media/
-├── result/
-├── ss/
-├── utils/
-│   └── usbwebcams.mlpkginstall
+│   │   ├── round_button.m
+│   │   └── test_button.m
+│   ├── utils/              # General utility scripts.
+│       ├── cargarEscalarImagen.m
+│       ├── formatearDecimales.m
+│       ├── getFieldOrZero.m
+│       ├── guardarDeteccionesImagenes.m
+│       ├── guardarResultados.m
+│       └── visualizarDetecciones.m
+├── media/                  # Images and UI backgrounds.
+├── result/                 # Generated output files and CSVs.
+├── ss/                     # Screenshots of the app (English and Spanish).
+├── utils/                  # Support packages or other utility files.
 ```
+
+## 📜 Releases
+v2.0.0 — Added Image Processing Toolbox support, multilingual interface (EN/ES), new project structure, automatic layout/styling from CSV.
+
+v1.0.5 — Automated object matching and scale calibration, still in Spanish only, using custom image-processing functions.
+
+v1.0.0 — Initial version without any external packages. Pure custom image-processing and English interface.
+
+### 📄 Release Description (v2.0.0)
+This version integrates the MATLAB Image Processing Toolbox, allowing for more robust image segmentation and detection routines. It simplifies the codebase by removing custom thresholding and labeling functions, and enhances the UI with a language selector. All labels and table contents switch dynamically between English and Spanish. The structure is better organized into logical folders for detection, matching, preprocessing, utilities, and UI components.
 
 ## 📝 Usage
 1. Run `App.mlapp`.
