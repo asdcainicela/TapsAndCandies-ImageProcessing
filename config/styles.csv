@@ -1,0 +1,12 @@
+ID,FontColor,Bold,Color,HoverColor,BGColor,toggleId
+1,white,true,#0097A7,#005F68,#c7e9e9,11
+2,black,false,#81D4FA,#0288D1,#c8e8e8,
+3,black,false,#81D4FA,#0288D1,#caeaea,
+4,black,false,#4DD0E1,#00838F,#c4e9ea,
+5,black,false,#4DD0E1,#00838F,#d0e8e4,
+6,black,false,#00E4FF,#0097A7,#cee8e5,
+7,black,false,#00E4FF,#0097A7,#d2e8e3,
+8,black,false,#00E4FF,#0097A7,#d6e7e1,
+9,white,true,#FF0A0A,#B71C1C,#dbe7db,
+10,white,true,#3498DB,#2980B9,#dbe7db,
+11,white,true,#FF8C00,#B76B10,#c7e9e9,1
