@@ -1,5 +1,9 @@
 # TapsAndCandies-ImageProcessing
 
+| English UI | Spanish UI |
+|------------|------------|
+| ![English version](ss/ss-en.png) | ![Spanish version](ss/ss-es.png) |
+
 A **MATLAB App Designer** application for detecting, measuring, and matching plastic caps and candies (e.g. lentils) in images.  
 This version (v2.0.0) features a fully localized user interface (English and Spanish) with a language dropdown allowing you to switch between languages dynamically.
 
