@@ -374,7 +374,7 @@ classdef app_exported < matlab.apps.AppBase
             % Create Image
             app.Image = uiimage(app.UIFigure);
             app.Image.Position = [0 0 1366 768];
-            app.Image.ImageSource = fullfile(pathToMLAPP, 'media', 'img-src', 'background-image.png');
+            app.Image.ImageSource = fullfile(pathToMLAPP, 'media', 'img-src', 'background-en.png');
 
             % Create ImageVideo
             app.ImageVideo = uiimage(app.UIFigure);
