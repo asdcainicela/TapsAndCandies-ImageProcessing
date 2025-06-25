@@ -1,11 +1,11 @@
-Tag         , Text-es       , Text-en       , FontColor , Bold , Color    , HoverColor , BGColor  , AltText       , AltColor , Width , Height , PosX , PosY  
-start_video , Iniciar Video , Start Video   , white     , true , #0097A7  , #005F68   , #c7e9e9  , Detener Video , #FF8C00 , 170   , 50     , 421  , 572.3
-capture_1   , Capturar 1    , Capture 1     , black     , false, #81D4FA  , #0288D1   , #c8e8e8  ,               ,         , 170   , 50     , 421  , 504.3
-capture_2   , Capturar 2    , Capture 2     , black     , false, #81D4FA  , #0288D1   , #caeaea  ,               ,         , 170   , 50     , 421  , 431.8
-load_1      , Cargar 1      , Load 1        , black     , false, #4DD0E1  , #00838F   , #c4e9ea  ,               ,         , 170   , 50     , 90   , 321.9
-load_2      , Cargar 2      , Load 2        , black     , false, #4DD0E1  , #00838F   , #d0e8e4  ,               ,         , 170   , 50     , 421  , 321.9
-save_1      , Guardar 1     , Save 1         , black     , false, #00E4FF  , #0097A7   , #cee8e5  ,               ,         , 170   , 50     , 46   , 10.3
-clear_all   , Limpiar todo  , Clear All      , black     , false, #00E4FF  , #0097A7   , #d2e8e3  ,               ,         , 170   , 50     , 243  , 10.3
-save_2      , Guardar 2     , Save 2         , black     , false, #00E4FF  , #0097A7   , #d6e7e1  ,               ,         , 170   , 50     , 441  , 10.3
-process     , Procesar      , Process        , white     , true , #FF0A0A  , #B71C1C   , #dbe7db  ,               ,         , 170   , 50     , 800  , 596.3
-export_data , Exportar datos, Export Data    , white     , true , #3498DB  , #2980B9   , #dbe7db  ,               ,         , 170   , 50     , 1058 , 596.3
+Text       , FontColor, Bold , Color   , HoverColor, BGColor, PosX, PosY , AltText    , AltColor, Width, Height
+Start Video, white    , true , #0097A7 , #005F68   , #c7e9e9, 421 , 572.3, Stop Video , #FF8C00 , 170 , 50
+Capture 1  , black    , false, #81D4FA , #0288D1   , #c8e8e8, 421 , 504.3,           ,          , 170 , 50
+Capture 2  , black    , false, #81D4FA , #0288D1   , #caeaea, 421 , 431.8,           ,          , 170 , 50
+Load 1     , black    , false, #4DD0E1 , #00838F   , #c4e9ea, 90  , 321.9,           ,          , 170 , 50
+Load 2     , black    , false, #4DD0E1 , #00838F   , #d0e8e4, 421 , 321.9,           ,          , 170 , 50
+Save 1     , black    , false, #00E4FF , #0097A7   , #cee8e5, 46  , 10.3 ,           ,          , 170 , 50
+Clear All  , black    , false, #00E4FF , #0097A7   , #d2e8e3, 243 , 10.3 ,           ,          , 170 , 50
+Save 2     , black    , false, #00E4FF , #0097A7   , #d6e7e1, 441 , 10.3 ,           ,          , 170 , 50
+Process    , white    , true , #FF0A0A , #B71C1C   , #dbe7db, 800 , 596.3,           ,          , 170 , 50
+Export Data, white    , true , #3498DB , #2980B9   , #dbe7db, 1058, 596.3,	     ,		, 170 , 50
